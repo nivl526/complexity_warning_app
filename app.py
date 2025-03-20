@@ -5,7 +5,8 @@ import pandas as pd
 from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
-PASSWORD = st.secrets["secrets"]["password"]
+PASSWORD = st.secrets["password"]
+st.write('hello')
 st.write(PASSWORD)
 
 # Keep asking for the password until it's correct
