@@ -6,22 +6,7 @@ from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
 PASSWORD = st.secrets["password"]
-st.write('hello')
-st.write(PASSWORD)
 
-# Keep asking for the password until it's correct
-while True:
-    entered_password = st.text_input("Enter Password:", type="password")
-
-    if entered_password == PASSWORD:
-        break  # Exit loop and continue execution
-
-    st.warning("Incorrect password! Please try again.")
-    st.stop()  # Prevents further execution until correct password is entered
-
-# Now continue with the app after successful login
-st.title("Level Complexity Prediction")
-st.write("Welcome to the app!")
 
 
 def load_models(item_pack):
@@ -43,8 +28,9 @@ def load_models(item_pack):
     return classifier, items_df
 
 def main():
-    authenticate()  # Require password before showing the app
-
+    
+    st.write('hello')
+    st.write(PASSWORD)
     st.title("🔍 Level Complexity Prediction")
 
     # Dropdown for selecting item pack
