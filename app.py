@@ -5,7 +5,7 @@ import pandas as pd
 from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
-PASSWORD = st.secrets["password"]
+PASSWORD = st.secrets["secrets"]["password"]
 
 
 
