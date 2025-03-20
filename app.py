@@ -6,27 +6,21 @@ from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
 PASSWORD = st.secrets["secrets"]["password"]
+st.write(PASSWORD)
 
-def authenticate():
-    """ Password protection for the Streamlit app """
-    if "authenticated" not in st.session_state:
-        st.session_state["authenticated"] = False
+# Keep asking for the password until it's correct
+while True:
+    entered_password = st.text_input("Enter Password:", type="password")
 
-    if not st.session_state["authenticated"]:
-        entered_password = st.text_input("Enter Password:", type="password", key="password_input")
-        if st.button("Login", key="login_button"):
-            if entered_password == PASSWORD:
-                st.session_state["authenticated"] = True
-                st.experimental_rerun()  # Refresh page after login
-            else:
-                st.error("❌ Incorrect password. Try again.")
+    if entered_password == PASSWORD:
+        break  # Exit loop and continue execution
 
-if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
-    authenticate()
-else:
-    st.title("Level Complexity Prediction")
-    st.write("Welcome to the app!")
+    st.warning("Incorrect password! Please try again.")
+    st.stop()  # Prevents further execution until correct password is entered
 
+# Now continue with the app after successful login
+st.title("Level Complexity Prediction")
+st.write("Welcome to the app!")
 
 
 def load_models(item_pack):
