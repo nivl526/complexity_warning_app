@@ -6,7 +6,7 @@ from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
 # Set a fixed password
-PASSWORD = "my_secure_password"
+PASSWORD = st.secrets["password"]
 
 # Simple password protection
 def authenticate():
