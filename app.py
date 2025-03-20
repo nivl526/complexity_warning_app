@@ -31,10 +31,10 @@ def main():
     st.title("🔍 Level Complexity Prediction")
     st.session_state["show_content"] = False
 
-    user_input = st.text_input("Enteer Password:")
+    user_input = st.text_input("Enter Password:")
     # Update session state based on checkbox state
-    if str(user_input) == PASSWORD:
-        st.write('Correct Passowrd ! ')
+    if user_input == PASSWORD:
+        st.title('Correct Passowrd !')
         st.session_state["show_content"] = True
 
     
