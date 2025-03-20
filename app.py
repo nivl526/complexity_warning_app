@@ -8,6 +8,9 @@ from xgboost import XGBClassifier
 PASSWORD = st.secrets["secrets"]["password"]
 
 
+# Check if the user is authenticated
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
 def load_models(item_pack):
     """Load the pretrained XGBoost classifier and corresponding items DataFrame."""
@@ -27,25 +30,26 @@ def load_models(item_pack):
     st.write(f"Models loaded successfully! Using '{item_pack}' item pack.")
     return classifier, items_df
 
-def authenticate(password):
+def authenticate():
     """ Password protection for the Streamlit app """
-    password = password  # Replace with your actual password
+    # Ask for password if not authenticated
     entered_password = st.text_input("Enter Password:", type="password", key="password_input")
     
     if st.button("Login", key="login_button"):
-        if entered_password == password:
+        if entered_password == PASSWORD:
             st.session_state["authenticated"] = True
-            st.experimental_rerun()  # Refresh the app after login
+            st.success("✅ Successfully authenticated!")
+            st.experimental_rerun()  # Refresh the page after login
         else:
             st.error("❌ Incorrect password. Try again.")
 
 def main():
   
     if not st.session_state["authenticated"]:
-        authenticate(PASSWORD)  # Ask for password if not authenticated
+        authenticate()  # Show the authentication page if not authenticated
     else:
-        # Once the user is authenticated, display the rest of the app
-        st.title("🔍 Level Complexity Prediction")
+        # Once authenticated, show the main content of the app
+        st.title("Level Complexity Prediction")
  
 
     # Dropdown for selecting item pack
