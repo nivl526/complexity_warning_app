@@ -7,6 +7,7 @@ from xgboost import XGBClassifier
 
 # Fetch password safely
 PASSWORD = st.secrets.get("password", None)
+st.write(st.secrets)
 
 # Authentication function
 def authenticate():
@@ -29,7 +30,7 @@ else:
     st.title("Level Complexity Prediction")
     st.write("Welcome to the app!")
 
-    
+
 def load_models(item_pack):
     """Load the pretrained XGBoost classifier and corresponding items DataFrame."""
     st.write("Loading models...")
