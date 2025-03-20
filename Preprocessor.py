@@ -1,3 +1,5 @@
+import pandas as pd
+
 class Preprocessor:
     """Ensures that the extracted features align with model requirements."""
     
