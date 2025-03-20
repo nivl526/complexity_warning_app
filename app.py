@@ -5,24 +5,31 @@ import pandas as pd
 from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
-# Set a fixed password
-PASSWORD = st.secrets["password"]
+# Fetch password safely
+PASSWORD = st.secrets.get("password", None)
 
-# Simple password protection
+# Authentication function
 def authenticate():
-    """Ask for a password and block access until correct password is entered."""
-    if "authenticated" not in st.session_state:
-        st.session_state["authenticated"] = False
-
-    if not st.session_state["authenticated"]:
-        password = st.text_input("🔒 Enter Password:", type="password")
-        if password == PASSWORD:
+    entered_password = st.text_input("Enter Password:", type="password")
+    if st.button("Login"):
+        if PASSWORD is None:
+            st.error("⚠️ Password is not set. Add it in Streamlit secrets.")
+        elif entered_password == PASSWORD:
             st.session_state["authenticated"] = True
-            st.experimental_rerun()
-        elif password:
+        else:
             st.error("❌ Incorrect password. Try again.")
-        st.stop()
 
+# Initialize authentication state
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    authenticate()
+else:
+    st.title("Level Complexity Prediction")
+    st.write("Welcome to the app!")
+
+    
 def load_models(item_pack):
     """Load the pretrained XGBoost classifier and corresponding items DataFrame."""
     st.write("Loading models...")
