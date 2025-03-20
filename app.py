@@ -5,8 +5,26 @@ import pandas as pd
 from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
+# Set a fixed password
+PASSWORD = "my_secure_password"
+
+# Simple password protection
+def authenticate():
+    """Ask for a password and block access until correct password is entered."""
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+
+    if not st.session_state["authenticated"]:
+        password = st.text_input("🔒 Enter Password:", type="password")
+        if password == PASSWORD:
+            st.session_state["authenticated"] = True
+            st.experimental_rerun()
+        elif password:
+            st.error("❌ Incorrect password. Try again.")
+        st.stop()
+
 def load_models(item_pack):
-    """ Load the pretrained XGBoost classifier and corresponding items DataFrame. """
+    """Load the pretrained XGBoost classifier and corresponding items DataFrame."""
     st.write("Loading models...")
 
     # Load classifier
@@ -24,7 +42,9 @@ def load_models(item_pack):
     return classifier, items_df
 
 def main():
-    st.title("Level Complexity Prediction")
+    authenticate()  # Require password before showing the app
+
+    st.title("🔍 Level Complexity Prediction")
 
     # Dropdown for selecting item pack
     item_pack = st.selectbox("Select Item Pack:", ["new", "old"])
@@ -38,10 +58,10 @@ def main():
         if input_json:
             try:
                 level_data = json.loads(input_json)  # Convert JSON string to dict
-                st.write("JSON data loaded successfully!")
+                st.write("✅ JSON data loaded successfully!")
 
                 # Extract features using UnifiedFeatureExtractor
-                st.write("Extracting features...")
+                st.write("🔄 Extracting features...")
                 extracted_features = feature_extractor.extract_features_from_json(level_data)
 
                 # Select only the required model features
@@ -56,30 +76,26 @@ def main():
                 features_df = pd.DataFrame([features_dict])
 
                 # Display extracted features
-                st.subheader("Extracted Features for Prediction:")
+                st.subheader("📊 Extracted Features for Prediction:")
                 st.dataframe(features_df.T, use_container_width=True)
 
                 # Make prediction
-                st.write("Making prediction...")
+                st.write("🚀 Making prediction...")
                 prediction = classifier.predict(features_df)[0]
                 proba_1 = classifier.predict_proba(features_df)[:, 1][0] * 100  # Probability for class 1
 
-                # Display final prediction
-                # if prediction == 0:
-                #     st.success(f"Predicted Complexity Category: {prediction}")
-
                 # Add probability-based messages
                 if proba_1 >= 50:
-                    st.warning("High chance for 8+ complexity")
+                    st.warning("⚠ High chance for 8+ complexity")
                 elif 30 <= proba_1 < 50:
-                    st.info("Medium chance for 8+ complexity")
+                    st.info("🔵 Medium chance for 8+ complexity")
                 else:
-                    st.info("Small chance for 8+ complexity")
+                    st.info("✅ Small chance for 8+ complexity")
 
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                st.error(f"❌ Error: {str(e)}")
         else:
-            st.error("Please provide a valid JSON input.")
+            st.error("🚨 Please provide a valid JSON input.")
 
 if __name__ == "__main__":
     main()
