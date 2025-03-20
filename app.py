@@ -34,6 +34,7 @@ def main():
     user_input = st.text_input("Enteer Password:")
     # Update session state based on checkbox state
     if str(user_input) == PASSWORD:
+        st.write('Correct Passowrd ! ')
         st.session_state["show_content"] = True
 
     
