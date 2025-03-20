@@ -28,10 +28,15 @@ def load_models(item_pack):
     return classifier, items_df
 
 def main():
-    
-    st.write('hello')
-    st.write(PASSWORD)
     st.title("🔍 Level Complexity Prediction")
+    st.session_state["show_content"] = False
+
+    user_input = st.text_input("Enteer Password:")
+    # Update session state based on checkbox state
+    if str(user_input) == PASSWORD:
+        st.session_state["show_content"] = True
+
+    
 
     # Dropdown for selecting item pack
     item_pack = st.selectbox("Select Item Pack:", ["new", "old"])
