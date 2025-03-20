@@ -5,30 +5,28 @@ import pandas as pd
 from UnifiedFeatureExtractor import UnifiedFeatureExtractor
 from xgboost import XGBClassifier
 
-# Fetch password safely
-PASSWORD = st.secrets.get("password", None)
-st.write(st.secrets)
+PASSWORD = st.secrets["password"]
 
-# Authentication function
 def authenticate():
-    entered_password = st.text_input("Enter Password:", type="password")
-    if st.button("Login"):
-        if PASSWORD is None:
-            st.error("⚠️ Password is not set. Add it in Streamlit secrets.")
-        elif entered_password == PASSWORD:
-            st.session_state["authenticated"] = True
-        else:
-            st.error("❌ Incorrect password. Try again.")
+    """ Password protection for the Streamlit app """
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
 
-# Initialize authentication state
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+    if not st.session_state["authenticated"]:
+        entered_password = st.text_input("Enter Password:", type="password", key="password_input")
+        if st.button("Login", key="login_button"):
+            if entered_password == PASSWORD:
+                st.session_state["authenticated"] = True
+                st.experimental_rerun()  # Refresh page after login
+            else:
+                st.error("❌ Incorrect password. Try again.")
 
-if not st.session_state["authenticated"]:
+if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
     authenticate()
 else:
     st.title("Level Complexity Prediction")
     st.write("Welcome to the app!")
+
 
 
 def load_models(item_pack):
