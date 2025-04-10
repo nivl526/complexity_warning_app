@@ -52,17 +52,15 @@ class UnifiedFeatureExtractor:
 
         return {**color_counts_1_goal, **color_counts_2_goal, **color_counts_1_board, **color_counts_2_board, **shape_counts}
 
-    def calculate_color_percentages(self, color_counts, total_items):
+    def calculate_color_percentages(self, color_counts, total_items, relative_to_total_items=False):
         """Calculate the percentage of each color in board or goal items."""
         color_pct = {}
         for key, count in color_counts.items():
-            # Just add '_pct' at the end of the key to match your feature naming convention
             color_pct[key + "_pct"] = (count / total_items) * 100 if total_items > 0 else 0
         return color_pct
 
     def calculate_similar_color_features(self, features):
         """Calculates the total number of items with the same color in both the board and goal."""
-        
         similar_color_1 = 0
         similar_color_2 = 0
 
@@ -72,10 +70,8 @@ class UnifiedFeatureExtractor:
             goal_key_2 = f"number_of_color_2_{color}_goal_items"
             board_key_2 = f"number_of_color_2_{color}_board_items"
 
-            # Use max between board and goal for each color
             similar_color_1 += min(max(features.get(goal_key_1, 0), features.get(board_key_1, 0)),
                                   max(features.get(goal_key_1, 0), features.get(board_key_1, 0)))
-
             similar_color_2 += min(max(features.get(goal_key_2, 0), features.get(board_key_2, 0)),
                                   max(features.get(goal_key_2, 0), features.get(board_key_2, 0)))
 
@@ -98,21 +94,24 @@ class UnifiedFeatureExtractor:
         num_goal_items_pct = (total_items_goal / max(1, total_items)) * 100 if total_items > 0 else 0
 
         # Compute main color proportions (from total amount per color)
-        color_1_total_cols = [f"number_of_color_1_{color}_goal_items" for color in self.color_labels] + \
-                            [f"number_of_color_1_{color}_board_items" for color in self.color_labels]
-
         color_totals = {color: 0 for color in self.color_labels}
-        
         for color in self.color_labels:
             goal_key = f"number_of_color_1_{color}_goal_items"
             board_key = f"number_of_color_1_{color}_board_items"
             color_totals[color] = color_shape_features.get(goal_key, 0) + color_shape_features.get(board_key, 0)
 
         max_main_color_proportion = max(color_totals.values(), default=0)
+        max_pct_main_color_proportion = (max_main_color_proportion / total_items) if total_items > 0 else 0
 
-        # Now calculate the percentage features for color counts
-        color_pct_1_goal = self.calculate_color_percentages(color_shape_features, total_items_goal)
-        color_pct_1_board = self.calculate_color_percentages(color_shape_features, total_items_board)
+        # Calculate color_1 percentages
+        color_pct_1_goal = self.calculate_color_percentages(
+            {k: v for k, v in color_shape_features.items() if "_goal_items" in k and "_color_1_" in k},
+            total_items_goal
+        )
+        color_pct_1_board = self.calculate_color_percentages(
+            {k: v for k, v in color_shape_features.items() if "_board_items" in k and "_color_1_" in k},
+            total_items  # <-- Use total_items here as requested
+        )
 
         combined_features = {
             **basic_features,
@@ -122,12 +121,15 @@ class UnifiedFeatureExtractor:
             'num_goal_items_pct': num_goal_items_pct,
             'num_goal_items': total_items_goal,
             'max_main_color_proportion': max_main_color_proportion,
-            'items_per_seconed':  total_items / basic_features['duration'],
-            **color_pct_1_goal,  # Adding the calculated color percentage for goal items
-            **color_pct_1_board  # Adding the calculated color percentage for board items
+            'max_pct_main_color_proportion': max_pct_main_color_proportion,
+            'items_per_seconed': total_items / basic_features['duration'] if basic_features['duration'] > 0 else 0,
+            **color_pct_1_goal,
+            **color_pct_1_board
         }
 
         similar_color_features = self.calculate_similar_color_features(combined_features)
         combined_features.update(similar_color_features)
 
-        return combined_features
+        return combined_features    
+
+        
