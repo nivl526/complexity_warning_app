@@ -3,8 +3,8 @@ class UnifiedFeatureExtractor:
     
     def __init__(self, df_item_features):
         self.df_item_features = df_item_features
-        self.color_labels = ['blue','brown', 'gray', 'green', 'orange', 'pink', 'purple', 'red', 'white', 'yellow']
-        self.shape_labels = ['rectangle', 'round', 'spiky', 'square', 'thin', 'triangle']
+        self.color_labels = ['orange', 'white', 'green', 'purple', 'black', 'red', 'yellow', 'brown', 'blue', 'pink', 'grey']
+        self.shape_labels = ['round', 'bug', 'other', 'cake', 'thin', 'box', 'flat', 'cylender', 'fat_disk', 'donut']
     
     def extract_basic_features(self, json_data):
         """Extracts simple numeric features from the JSON."""
@@ -52,6 +52,13 @@ class UnifiedFeatureExtractor:
 
         return {**color_counts_1_goal, **color_counts_2_goal, **color_counts_1_board, **color_counts_2_board, **shape_counts}
 
+    def calculate_color_percentages(self, color_counts, total_items):
+        """Calculate the percentage of each color in board or goal items."""
+        color_pct = {}
+        for key, count in color_counts.items():
+            color_pct[key.replace("number_of_", "").replace("_items", "_pct")] = count / total_items if total_items > 0 else 0
+        return color_pct
+
     def calculate_similar_color_features(self, features):
         """Calculates the total number of items with the same color in both the board and goal."""
         
@@ -75,7 +82,7 @@ class UnifiedFeatureExtractor:
             'num_same_color1_in_board_and_goal': similar_color_1,
             'num_same_color2_in_board_and_goal': similar_color_2
         }
-    
+
     def extract_features_from_json(self, json_data):
         """Extracts all relevant features from the JSON input."""
         basic_features = self.extract_basic_features(json_data)
@@ -102,6 +109,10 @@ class UnifiedFeatureExtractor:
 
         max_main_color_proportion = max(color_totals.values(), default=0)
 
+        # Now calculate the percentage features for color counts
+        color_pct_1_goal = self.calculate_color_percentages(color_shape_features, total_items_goal)
+        color_pct_1_board = self.calculate_color_percentages(color_shape_features, total_items_board)
+
         combined_features = {
             **basic_features,
             **color_shape_features,
@@ -110,9 +121,12 @@ class UnifiedFeatureExtractor:
             'num_goal_items_pct': num_goal_items_pct,
             'num_goal_items': total_items_goal,
             'max_main_color_proportion': max_main_color_proportion,
-            'items_per_seconed':  total_items / basic_features['duration']
+            'items_per_seconed':  total_items / basic_features['duration'],
+            **color_pct_1_goal,  # Adding the calculated color percentage for goal items
+            **color_pct_1_board  # Adding the calculated color percentage for board items
         }
 
         similar_color_features = self.calculate_similar_color_features(combined_features)
         combined_features.update(similar_color_features)
+
         return combined_features
