@@ -51,8 +51,8 @@ def main():
                 extracted_features = feature_extractor.extract_features_from_json(level_data)
 
                 # Debug: Show the full extracted features dict
-                st.subheader("🛠 Full Extracted Features Dict (Debugging)")
-                st.json(extracted_features)
+                # st.subheader("🛠 Full Extracted Features Dict (Debugging)")
+                # st.json(extracted_features)
 
                 # Select only the required model features
                 model_features = [
@@ -63,6 +63,7 @@ def main():
                     'two_colors_sides_pct'
                 ]
                 features_dict = {key: extracted_features[key] for key in model_features}
+                # features_dict = {key: float(extracted_features[key]) for key in model_features}
                 features_df = pd.DataFrame([features_dict])
 
                 # Display extracted features
