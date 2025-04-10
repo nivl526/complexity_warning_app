@@ -56,7 +56,8 @@ class UnifiedFeatureExtractor:
         """Calculate the percentage of each color in board or goal items."""
         color_pct = {}
         for key, count in color_counts.items():
-            color_pct[key.replace("number_of_", "").replace("_items", "_pct")] = count / total_items if total_items > 0 else 0
+            # Just add '_pct' at the end of the key to match your feature naming convention
+            color_pct[key + "_pct"] = (count / total_items) * 100 if total_items > 0 else 0
         return color_pct
 
     def calculate_similar_color_features(self, features):
