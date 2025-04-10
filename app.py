@@ -52,11 +52,11 @@ def main():
 
                 # Select only the required model features
                 model_features = [
-                    'total_items', 'items_per_seconed', 'has_ease',
-                    'num_same_color1_in_board_and_goal', 'max_main_color_proportion',
-                    'num_same_color2_in_board_and_goal', 'goal_items_per_seconed',
-                    'num_type_of_goals', 'number_of_color_2_orange_board_items',
-                    'number_of_shape_round_items', 'num_goal_items_pct', 'num_goal_items'
+                    'number_of_color_1_red_board_items_pct','number_of_color_1_yellow_board_items_pct', 'number_of_color_1_brown_board_items_pct',
+                    'number_of_color_1_brown_goal_items_pct','items_per_seconed','max_pct_main_color_proportion',
+                    'num_type_of_goals','num_goal_items_pct','num_same_color1_in_board_and_goal_pct','number_of_shape_box_items_pct',
+                    'number_of_shape_round_items_pct','triplets_goals','triplets_board',
+                    'two_colors_sides_pct','same_name_items_pct','two_colors_sides_pct'
                 ]
                 features_dict = {key: extracted_features[key] for key in model_features}
                 features_df = pd.DataFrame([features_dict])
