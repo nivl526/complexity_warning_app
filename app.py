@@ -49,6 +49,10 @@ def main():
                 # Extract features using UnifiedFeatureExtractor
                 st.write("🔄 Extracting features...")
                 extracted_features = feature_extractor.extract_features_from_json(level_data)
+                
+                # Debug: Show the full extracted features dict
+                st.subheader("🛠 Full Extracted Features Dict (Debugging)")
+                st.json(extracted_features)
 
                 # Select only the required model features
                 model_features = [
