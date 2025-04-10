@@ -73,11 +73,11 @@ def main():
 
                 # Add probability-based messages
                 if proba_1 >= 50:
-                    st.warning("⚠ High chance for 8+ complexity")
+                    st.warning(f"⚠ High chance for 8+ complexity ({proba_1})")
                 elif 30 <= proba_1 < 50:
-                    st.info("🔵 Medium chance for 8+ complexity")
+                    st.info(f"🔵 Medium chance for 8+ complexity ({proba_1})")
                 else:
-                    st.info("✅ Small chance for 8+ complexity")
+                    st.info(f"✅ Small chance for 8+ complexity ({proba_1})")
 
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
