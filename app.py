@@ -49,7 +49,7 @@ def main():
                 # Extract features using UnifiedFeatureExtractor
                 st.write("🔄 Extracting features...")
                 extracted_features = feature_extractor.extract_features_from_json(level_data)
-                
+
                 # Debug: Show the full extracted features dict
                 st.subheader("🛠 Full Extracted Features Dict (Debugging)")
                 st.json(extracted_features)
@@ -60,7 +60,7 @@ def main():
                     'number_of_color_1_brown_goal_items_pct','items_per_seconed','max_pct_main_color_proportion',
                     'num_type_of_goals','num_goal_items_pct','num_same_color1_in_board_and_goal_pct','number_of_shape_box_items_pct',
                     'number_of_shape_round_items_pct','triplets_goals','triplets_board',
-                    'two_colors_sides_pct','two_colors_sides_pct'
+                    'two_colors_sides_pct'
                 ]
                 features_dict = {key: extracted_features[key] for key in model_features}
                 features_df = pd.DataFrame([features_dict])
