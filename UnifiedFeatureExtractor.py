@@ -52,12 +52,21 @@ class UnifiedFeatureExtractor:
 
         return {**color_counts_1_goal, **color_counts_2_goal, **color_counts_1_board, **color_counts_2_board, **shape_counts}
 
-    def calculate_color_percentages(self, color_counts, total_items, relative_to_total_items=False):
+    def calculate_color_percentages(self, color_counts, total_items):
         """Calculate the percentage of each color in board or goal items."""
         color_pct = {}
         for key, count in color_counts.items():
             color_pct[key + "_pct"] = (count / total_items) * 100 if total_items > 0 else 0
         return color_pct
+
+    def calculate_shape_percentages(self, shape_counts, total_items):
+        """Calculate the percentage of each shape in board or goal items."""
+        shape_pct = {}
+        for key, count in shape_counts.items():
+            # shape_pct[key + "_pct"] = (count / total_items) * 100 if total_items > 0 else 0
+            shape_pct[f"number_of_shape_{key}_items_pct"] = (count / total_items) * 100 if total_items > 0 else 0
+
+        return shape_pct
 
     def calculate_similar_color_features(self, features):
         """Calculates the total number of items with the same color in both the board and goal."""
@@ -92,7 +101,11 @@ class UnifiedFeatureExtractor:
 
         goal_items_per_seconed = total_items_goal / max(1, basic_features['duration'])
         num_goal_items_pct = (total_items_goal / max(1, total_items)) * 100 if total_items > 0 else 0
-
+        
+        # Triplets
+        triplets_goals = sum(1 for item in goals if item["count"] == 3)
+        triplets_board = sum(1 for item in board if item["count"] == 3)
+        
         # Compute main color proportions (from total amount per color)
         color_totals = {color: 0 for color in self.color_labels}
         for color in self.color_labels:
@@ -113,6 +126,13 @@ class UnifiedFeatureExtractor:
             total_items  # <-- Use total_items here as requested
         )
 
+        # Calculate shape percentages by combining counts for board and goal items
+        combined_shape_counts = {shape: color_shape_features.get(f"number_of_shape_{shape}_items", 0)
+                                 for shape in self.shape_labels}
+
+        # Now calculate the percentages
+        shape_pct = self.calculate_shape_percentages(combined_shape_counts, total_items)
+
         combined_features = {
             **basic_features,
             **color_shape_features,
@@ -123,13 +143,34 @@ class UnifiedFeatureExtractor:
             'max_main_color_proportion': max_main_color_proportion,
             'max_pct_main_color_proportion': max_pct_main_color_proportion,
             'items_per_seconed': total_items / basic_features['duration'] if basic_features['duration'] > 0 else 0,
+            'triplets_board': triplets_board,
+            'triplets_goals': triplets_goals,
             **color_pct_1_goal,
-            **color_pct_1_board
+            **color_pct_1_board,
+            **shape_pct  # Now including the combined shape percentages
         }
+
+        # Compute 'two_colors_sides' feature
+        two_colors_sides = 0
+        for item in goals + board:
+            item_id = item['id']
+            item_row = self.df_item_features[self.df_item_features['item_name'].str.lower() == item_id.lower()]
+            if not item_row.empty:
+                # Check if the item has the 'two_colors_sides' feature
+                two_colors_sides += item_row['two_colors_sides'].values[0] * item['count']
+        
+        combined_features['two_colors_sides'] = two_colors_sides
+        
+        # Compute the 'two_colors_sides_pct' feature (percentage)
+        if combined_features['total_items'] > 0:
+            combined_features['two_colors_sides_pct'] = two_colors_sides / combined_features['total_items']
+        else:
+            combined_features['two_colors_sides_pct'] = 0
 
         similar_color_features = self.calculate_similar_color_features(combined_features)
         combined_features.update(similar_color_features)
 
-        return combined_features    
+        combined_features['num_same_color1_in_board_and_goal_pct'] = combined_features['num_same_color1_in_board_and_goal'] / combined_features['total_items']
+        combined_features['num_same_color2_in_board_and_goal_pct'] = combined_features['num_same_color2_in_board_and_goal'] / combined_features['total_items']
 
-        
+        return combined_features
