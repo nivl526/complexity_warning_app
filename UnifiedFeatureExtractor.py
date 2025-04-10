@@ -114,7 +114,7 @@ class UnifiedFeatureExtractor:
             color_totals[color] = color_shape_features.get(goal_key, 0) + color_shape_features.get(board_key, 0)
 
         max_main_color_proportion = max(color_totals.values(), default=0)
-        max_pct_main_color_proportion = (max_main_color_proportion / total_items) if total_items > 0 else 0
+        max_pct_main_color_proportion = (max_main_color_proportion / total_items)*100 if total_items > 0 else 0
 
         # Calculate color_1 percentages
         color_pct_1_goal = self.calculate_color_percentages(
@@ -163,14 +163,14 @@ class UnifiedFeatureExtractor:
         
         # Compute the 'two_colors_sides_pct' feature (percentage)
         if combined_features['total_items'] > 0:
-            combined_features['two_colors_sides_pct'] = two_colors_sides / combined_features['total_items']
+            combined_features['two_colors_sides_pct'] = (two_colors_sides / combined_features['total_items'])*100
         else:
             combined_features['two_colors_sides_pct'] = 0
 
         similar_color_features = self.calculate_similar_color_features(combined_features)
         combined_features.update(similar_color_features)
 
-        combined_features['num_same_color1_in_board_and_goal_pct'] = combined_features['num_same_color1_in_board_and_goal'] / combined_features['total_items']
-        combined_features['num_same_color2_in_board_and_goal_pct'] = combined_features['num_same_color2_in_board_and_goal'] / combined_features['total_items']
+        combined_features['num_same_color1_in_board_and_goal_pct'] = (combined_features['num_same_color1_in_board_and_goal'] / combined_features['total_items'])*100
+        combined_features['num_same_color2_in_board_and_goal_pct'] = (combined_features['num_same_color2_in_board_and_goal'] / combined_features['total_items'])*100
 
         return combined_features
