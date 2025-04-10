@@ -14,7 +14,7 @@ def load_models(item_pack):
 
     # Load classifier
     classifier = joblib.load("models/xgb_classifier.pkl")
-
+    scaler = joblib.load("models/scaler.pkl")
     # Select item pack
     file_map = {
         "new": "items_data/new_items_colors_and_shapes.csv",
@@ -24,7 +24,7 @@ def load_models(item_pack):
     items_df = pd.read_csv(items_file)
 
     st.write(f"Models loaded successfully! Using '{item_pack}' item pack.")
-    return classifier, items_df
+    return classifier, items_df, scaler
 
 
 
@@ -35,7 +35,7 @@ def main():
     # Dropdown for selecting item pack
     item_pack = st.selectbox("Select Item Pack:", ["new", "old"])
 
-    classifier, items_df = load_models(item_pack)
+    classifier, items_df, scaler = load_models(item_pack)
     feature_extractor = UnifiedFeatureExtractor(items_df)
 
     input_json = st.text_area("Enter Level JSON:", height=300)
@@ -60,7 +60,9 @@ def main():
                 ]
                 features_dict = {key: extracted_features[key] for key in model_features}
                 # features_dict = {key: float(extracted_features[key]) for key in model_features}
+                #scale the data
                 features_df = pd.DataFrame([features_dict])
+                features_df_scaled = scaler.transform(features_df)
 
                 # Display extracted features
                 st.subheader("📊 Extracted Features for Prediction:")
@@ -68,8 +70,8 @@ def main():
 
                 # Make prediction
                 st.write("🚀 Making prediction...")
-                prediction = classifier.predict(features_df)[0]
-                proba_1 = classifier.predict_proba(features_df)[:, 1][0] * 100  # Probability for class 1
+                prediction = classifier.predict(features_df_scaled)[0]
+                proba_1 = classifier.predict_proba(features_df_scaled)[:, 1][0] * 100  # Probability for class 1
 
                 # Add probability-based messages
                 if proba_1 >= 50:
